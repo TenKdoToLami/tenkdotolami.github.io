@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TenKdoToLami - Making Crazy Stuff</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body id="top">
+<canvas id="bg"></canvas>
+
+
+<nav id="sidebar">
+  <ul>
+    <li><a href="#top" class="nav-link" title="Home">🏠<span class="link-text">Home</span></a></li>
+    <li><a href="#skills" class="nav-link" title="Skills">🛠️<span class="link-text">Skills</span></a></li>
+    <li><a href="#repos" class="nav-link" title="Repos">📁<span class="link-text">Repos</span></a></li>
+  </ul>
+  <button id="mode-toggle" title="Toggle dark/light mode">🌙</button>
+</nav>
+
+
+<main class="content">
+  <h1 class="glitch" data-text="TenKdoToLami">TenKdoToLami</h1>
+  <p>Making crazy stuff. Breaking sanity since forever.</p>
+
+  <nav class="buttons">
+    <a href="https://github.com/tenkdotolami" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </nav>
+</main>
+
+
+<section id="skills">
+  <h2>My Skills</h2>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <h3>C / C++</h3>
+      <p>Low-level systems development, embedded, performance-focused projects, algorithms.</p>
+    </div>
+    <div class="skill-card">
+      <h3>C#</h3>
+      <p>.NET desktop tools, async patterns, object-oriented apps.</p>
+    </div>
+    <div class="skill-card">
+      <h3>Rust</h3>
+      <p>Memory-safe, concurrency-aware systems with ownership model. Academic familiarity.</p>
+    </div>
+    <div class="skill-card">
+      <h3>Java</h3>
+      <p>University-level experience with OOP, syntax, and core libraries.</p>
+    </div>
+    <div class="skill-card">
+      <h3>Prolog</h3>
+      <p>Logic programming, declarative paradigms, used in AI-related coursework.</p>
+    </div>
+    <div class="skill-card">
+      <h3>Racket / Pascal</h3>
+      <p>Functional + procedural approaches, academic and exploratory projects.</p>
+    </div>
+    <div class="skill-card">
+      <h3>Lua</h3>
+      <p>Hobbyist scripting for automation and small game mods or experiments.</p>
+    </div>
+    <div class="skill-card">
+      <h3>HTML</h3>
+      <p>Used for building static personal sites, interfaces, and prototypes.</p>
+    </div>
+  </div>
+</section>
+
+
+<section id="repos">
+  <h2>My GitHub Repositories</h2>
+  <div id="repo-list">Loading repositories...</div>
+</section>
+
+<script src="script.js"></script>
+
+</body>
+</html>
