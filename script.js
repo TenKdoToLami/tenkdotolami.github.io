@@ -116,6 +116,7 @@ async function fetchRepos(username = 'tenkdotolami') {
 
 function revealOnScroll(elementId) {
     const element = document.getElementById(elementId);
+    if (!element) return;
     const triggerPoint = window.innerHeight / 1.5;
 
     function checkScroll() {
@@ -127,8 +128,9 @@ function revealOnScroll(elementId) {
     }
 
     window.addEventListener('scroll', checkScroll);
-    checkScroll();
+    checkScroll(); // trigger once on load
 }
+
 
 function updateActiveSection() {
     const sections = [
@@ -138,32 +140,57 @@ function updateActiveSection() {
     ];
 
     const viewportHeight = window.innerHeight;
-    let maxVisibleRatio = 0;
-    let mostVisibleSection = null;
+    const visibilityData = [];
 
     sections.forEach(section => {
         const rect = section.getBoundingClientRect();
 
-        // Ignore sections fully above or below the viewport
-        if (rect.bottom <= 0 || rect.top >= viewportHeight) return;
+        if (rect.bottom <= 0 || rect.top >= viewportHeight) {
+            visibilityData.push({ section, ratio: 0 });
+            return;
+        }
 
         const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
-        const visibleRatio = visibleHeight / viewportHeight; // ratio relative to viewport size
+        const visibleRatio = visibleHeight / viewportHeight;
 
-        if (visibleRatio > maxVisibleRatio) {
-            maxVisibleRatio = visibleRatio;
-            mostVisibleSection = section;
-        }
+        visibilityData.push({ section, ratio: visibleRatio });
     });
 
+    // Sort sections by visibility (highest first)
+    visibilityData.sort((a, b) => b.ratio - a.ratio);
+
+    const top = visibilityData[0];
+    const second = visibilityData[1];
+
+    const fadeBase = 0.2;
+    const fadeRunnerUp = 0.6;
+    const fadeActive = 1.0;
+    const blendThreshold = 0.15; // difference ratio before we "blend"
+
+    // Reset all sections to base state
     sections.forEach(section => {
-        if (section === mostVisibleSection) {
-            section.classList.add('active');
-        } else {
-            section.classList.remove('active');
-        }
+        section.style.opacity = fadeBase;
+        section.classList.remove('active');
+        section.style.pointerEvents = 'none';
     });
+
+    if (top.ratio - second.ratio < blendThreshold) {
+        // Gentle transition: top and second visible
+        top.section.style.opacity = fadeActive;
+        top.section.classList.add('active');
+        top.section.style.pointerEvents = 'auto';
+
+        second.section.style.opacity = fadeRunnerUp;
+        second.section.classList.add('active');
+        second.section.style.pointerEvents = 'auto';
+    } else {
+        // Clear winner
+        top.section.style.opacity = fadeActive;
+        top.section.classList.add('active');
+        top.section.style.pointerEvents = 'auto';
+    }
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchRepos();
@@ -176,13 +203,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchRepos();
-    revealOnScroll('skills');
-    revealOnScroll('repos');
-    updateActiveSection();
-});
-
 window.addEventListener('scroll', updateActiveSection);
 window.addEventListener('resize', updateActiveSection);
-
