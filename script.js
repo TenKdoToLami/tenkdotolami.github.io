@@ -83,6 +83,38 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 
+// Utility: fetch README.md content for a repo (returns HTML or fallback message)
+async function fetchReadmeHTML(owner, repo) {
+    try {
+        // Get README content (base64 encoded) from GitHub API
+        const readmeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`);
+        if (!readmeRes.ok) {
+            if (readmeRes.status === 404) return null; // no README found
+            throw new Error(`Failed to fetch README: ${readmeRes.status}`);
+        }
+
+        const readmeData = await readmeRes.json();
+        if (!readmeData.content) return null;
+
+        // Decode base64 content
+        const decoded = atob(readmeData.content.replace(/\n/g, ''));
+
+        // Use GitHub API to render markdown to HTML
+        const mdRes = await fetch('https://api.github.com/markdown', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: decoded, mode: 'gfm', context: `${owner}/${repo}` }),
+        });
+        if (!mdRes.ok) throw new Error(`Failed to render markdown: ${mdRes.status}`);
+
+        const html = await mdRes.text();
+        return html;
+    } catch (e) {
+        console.error(e);
+        return `<p style="color: red;">Error loading README: ${e.message}</p>`;
+    }
+}
+
 async function fetchRepos(username = 'tenkdotolami') {
     const container = document.getElementById('repo-list');
     container.textContent = 'Loading repositories...';
@@ -98,14 +130,81 @@ async function fetchRepos(username = 'tenkdotolami') {
         }
 
         container.innerHTML = '';
+
         for (const repo of repos) {
             const repoEl = document.createElement('div');
             repoEl.className = 'repo';
-            repoEl.innerHTML = `
-        <h3><a href="${repo.html_url}" target="_blank" rel="noopener noreferrer">${repo.name}</a></h3>
-        <p>${repo.description || 'No description provided.'}</p>
-        <p class="stars">⭐ Stars: ${repo.stargazers_count}</p>
-      `;
+
+            // Create repo name link
+            const repoNameLink = document.createElement('a');
+            repoNameLink.href = repo.html_url;
+            repoNameLink.target = '_blank';
+            repoNameLink.rel = 'noopener noreferrer';
+            repoNameLink.textContent = repo.name;
+            repoNameLink.style.fontFamily = "'Orbitron', sans-serif";
+            repoNameLink.style.color = '#0ff';
+            repoNameLink.style.fontSize = '1.2em';
+            repoNameLink.style.fontWeight = 'bold';
+            repoNameLink.style.textDecoration = 'none';
+            repoNameLink.style.cursor = 'pointer';
+
+            // Prevent clicks on the repo name from toggling readme
+            repoNameLink.addEventListener('click', e => {
+                e.stopPropagation();
+            });
+
+            // Description paragraph
+            const desc = document.createElement('p');
+            desc.textContent = repo.description || 'No description provided.';
+            desc.style.color = '#ccc';
+            desc.style.fontSize = '1rem';
+
+            // Stars
+            const stars = document.createElement('p');
+            stars.className = 'stars';
+            stars.textContent = `⭐ Stars: ${repo.stargazers_count}`;
+
+            // Append elements to repoEl
+            repoEl.appendChild(repoNameLink);
+            repoEl.appendChild(desc);
+            repoEl.appendChild(stars);
+
+            // Container for README (hidden initially)
+            const readmeContainer = document.createElement('div');
+            readmeContainer.className = 'readme-container';
+            readmeContainer.style.marginTop = '10px';
+            readmeContainer.style.paddingTop = '10px';
+            readmeContainer.style.borderTop = '1px solid #0ff';
+            readmeContainer.style.display = 'none';
+            readmeContainer.style.color = '#ccc';
+            readmeContainer.style.fontSize = '0.9rem';
+            readmeContainer.style.maxHeight = '400px';
+            readmeContainer.style.overflowY = 'auto';
+            readmeContainer.style.backgroundColor = 'rgba(0,255,255,0.05)';
+            readmeContainer.style.borderRadius = '5px';
+            readmeContainer.style.userSelect = 'text';
+
+            repoEl.appendChild(readmeContainer);
+
+            // Toggle README on repo click (except repo name)
+            repoEl.addEventListener('click', async () => {
+                if (readmeContainer.style.display === 'block') {
+                    // Hide README
+                    readmeContainer.style.display = 'none';
+                    readmeContainer.innerHTML = '';
+                } else {
+                    // Show README
+                    readmeContainer.style.display = 'block';
+                    readmeContainer.innerHTML = '<em>Loading README...</em>';
+                    const readmeHTML = await fetchReadmeHTML(username, repo.name);
+                    if (readmeHTML) {
+                        readmeContainer.innerHTML = readmeHTML;
+                    } else {
+                        readmeContainer.innerHTML = '<p>No README.md found for this repository.</p>';
+                    }
+                }
+            });
+
             container.appendChild(repoEl);
         }
     } catch (err) {
@@ -201,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', updateActiveSection);
     window.addEventListener('resize', updateActiveSection);
 });
-
 
 window.addEventListener('scroll', updateActiveSection);
 window.addEventListener('resize', updateActiveSection);
