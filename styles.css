@@ -362,24 +362,6 @@ html {
 	outline: none;
 }
 
-#sidebar ul li a[title]:hover::after {
-	content: attr(title);
-	position: absolute;
-	left: 60px;
-	background: #0ff;
-	color: black;
-	padding: 4px 8px;
-	border-radius: 4px;
-	white-space: nowrap;
-	font-size: 0.9em;
-	pointer-events: none;
-	user-select: none;
-	top: 50%;
-	transform: translateY(-50%);
-	opacity: 0.9;
-	z-index: 1000;
-}
-
 main.content,
 #skills,
 #repos {
