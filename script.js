@@ -131,18 +131,24 @@ function revealOnScroll(elementId) {
 }
 
 function updateActiveSection() {
-    const sections = [document.querySelector('main.content'), document.getElementById('skills'), document.getElementById('repos')];
+    const sections = [
+        document.querySelector('main.content'),
+        document.getElementById('skills'),
+        document.getElementById('repos')
+    ];
+
     const viewportHeight = window.innerHeight;
     let maxVisibleRatio = 0;
     let mostVisibleSection = null;
 
     sections.forEach(section => {
         const rect = section.getBoundingClientRect();
-        if (rect.bottom <= 0 || rect.top >= viewportHeight) {
-            return;
-        }
+
+        // Ignore sections fully above or below the viewport
+        if (rect.bottom <= 0 || rect.top >= viewportHeight) return;
+
         const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
-        const visibleRatio = visibleHeight / rect.height;
+        const visibleRatio = visibleHeight / viewportHeight; // ratio relative to viewport size
 
         if (visibleRatio > maxVisibleRatio) {
             maxVisibleRatio = visibleRatio;
@@ -164,7 +170,19 @@ document.addEventListener('DOMContentLoaded', () => {
     revealOnScroll('skills');
     revealOnScroll('repos');
     updateActiveSection();
+
+    window.addEventListener('scroll', updateActiveSection);
+    window.addEventListener('resize', updateActiveSection);
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchRepos();
+    revealOnScroll('skills');
+    revealOnScroll('repos');
+    updateActiveSection();
 });
 
 window.addEventListener('scroll', updateActiveSection);
 window.addEventListener('resize', updateActiveSection);
+
