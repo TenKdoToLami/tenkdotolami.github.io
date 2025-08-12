@@ -362,6 +362,30 @@ html {
 	outline: none;
 }
 
+.sub-nav {
+	list-style: none;
+	padding-left: 20px;
+	display: none;
+}
+
+#sidebar:hover .sub-nav {
+	display: block;
+}
+
+.sub-link {
+	color: #0ff;
+	font-size: 0.9em;
+	padding: 6px 15px;
+	display: block;
+	text-decoration: none;
+	transition: background-color 0.3s;
+}
+
+.sub-link:hover {
+	background-color: rgba(0,255,255,0.2);
+	color: white;
+}
+
 main.content,
 #skills,
 #repos {
