@@ -20,17 +20,26 @@ canvas {
 	pointer-events: none;
 }
 
-.content {
+/* Updated content padding to prevent it from going behind the fixed navbars */
+main.content,
+#skills,
+#repos {
+	padding-left: 210px;
+	/* Adjust based on combined width of navbars */
+	padding-top: 20px;
 	position: relative;
 	z-index: 1;
+	transition: opacity 0.6s ease;
+	user-select: text;
+}
+
+.content {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	height: 100vh;
 	text-align: center;
-	padding: 20px;
-	user-select: none;
 }
 
 .glitch {
@@ -173,7 +182,7 @@ p {
 #repos {
 	max-width: 1100px;
 	margin: 50px auto 100px;
-	padding: 0 15px;
+	padding-right: 15px;
 	opacity: 0;
 	transform: translateY(40px);
 	transition: opacity 1s ease, transform 1s ease;
@@ -232,7 +241,7 @@ p {
 #skills {
 	max-width: 1100px;
 	margin: 60px auto 80px;
-	padding: 0 20px;
+	padding-right: 20px;
 	font-family: 'Share Tech Mono', monospace;
 	text-align: center;
 	opacity: 0;
@@ -297,7 +306,6 @@ html {
 	left: 0;
 	height: 100vh;
 	width: 50px;
-	/* collapsed width */
 	background: rgba(0, 255, 255, 0.1);
 	border-right: 1px solid #0ff;
 	backdrop-filter: blur(8px);
@@ -305,7 +313,6 @@ html {
 	transition: width 0.3s ease, background-color 0.5s ease, border-color 0.5s ease;
 	z-index: 100;
 	overflow: hidden;
-	/* hide overflowing text */
 	display: flex;
 	flex-direction: column;
 	user-select: none;
@@ -362,42 +369,50 @@ html {
 	outline: none;
 }
 
-.sub-nav {
+/* Updated styles for the section navigation bar */
+#section-nav {
+	position: fixed;
+	top: 0;
+	left: 50px; /* Positioned right after the sidebar */
+	height: 100vh;
+	width: 160px;
+	/* Adjust width as needed */
+	background: none;
+	backdrop-filter: blur(8px);
+	z-index: 90;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow-y: auto;
+}
+
+#section-nav ul {
 	list-style: none;
-	padding-left: 20px;
-	display: none;
+	padding: 0;
+	margin: 0;
 }
 
-#sidebar:hover .sub-nav {
+#section-nav ul li a {
 	display: block;
-}
-
-.sub-link {
-	color: #0ff;
-	font-size: 0.9em;
-	padding: 6px 15px;
-	display: block;
+	padding: 10px 20px;
+	color: #888; /* Less prominent color for non-active links */
 	text-decoration: none;
-	transition: background-color 0.3s;
+	transition: color 0.3s ease;
+	font-weight: bold;
+	font-size: 0.9em;
+	border-left: 2px solid transparent;
 }
 
-.sub-link:hover {
-	background-color: rgba(0,255,255,0.2);
-	color: white;
+#section-nav ul li a:hover {
+	color: #fff;
+	/* Slightly brighter on hover */
 }
 
-main.content,
-#skills,
-#repos {
-    transition: opacity 0.6s ease;
-    opacity: 0.2;
-    pointer-events: none;
-}
-
-@media (max-width: 600px) {
-	#sidebar {
-		display: none;
-	}
+#section-nav ul li a.active {
+	background-color: rgba(0, 255, 255, 0.1);
+	color: #0ff;
+	border-left-color: #0ff;
+	/* Subtle highlight on the active link */
 }
 
 main.content,
@@ -406,14 +421,15 @@ main.content,
 	transition: opacity 0.6s ease;
 	opacity: 0.2;
 	pointer-events: none;
-	scroll-margin-left: 200px;
+	scroll-margin-top: 80px;
+	/* Adjust scroll behavior for fixed navs */
 }
 
 main.content.active,
 #skills.active,
 #repos.active {
-    opacity: 1;
-    pointer-events: auto;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 #mode-toggle {
@@ -428,7 +444,6 @@ main.content.active,
 	border-radius: 0 25px 25px 0;
 	transition: background-color 0.3s ease, color 0.3s ease;
 	margin-top: auto;
-	/* Push to the bottom */
 }
 
 #mode-toggle:hover {
@@ -447,6 +462,11 @@ body.light-mode #sidebar {
 	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
 }
 
+body.light-mode #section-nav {
+	background: none;
+	border-right: 1px solid #aaa;
+}
+
 body.light-mode .glitch {
 	color: #0077ff;
 	animation: flickerLight 2s infinite;
@@ -460,12 +480,10 @@ body.light-mode .glitch::after {
 
 body.light-mode .glitch::before {
 	text-shadow: -2px 0 #ff5722;
-	/* A warm orange-red */
 }
 
 body.light-mode .glitch::after {
 	text-shadow: -2px 0 #00bcd4;
-	/* A light, vibrant cyan */
 }
 
 @keyframes flickerLight {

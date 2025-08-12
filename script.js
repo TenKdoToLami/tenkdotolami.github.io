@@ -1,341 +1,380 @@
 function toggleTheme() {
-    const body = document.body;
-    const toggleButton = document.getElementById('mode-toggle');
-    body.classList.toggle('light-mode');
+	const body = document.body;
+	const toggleButton = document.getElementById('mode-toggle');
+	body.classList.toggle('light-mode');
 
-    if (body.classList.contains('light-mode')) {
-        localStorage.setItem('theme', 'light');
-        toggleButton.textContent = '☀️';
-        toggleButton.title = 'Toggle light/dark mode';
-    } else {
-        localStorage.setItem('theme', 'dark');
-        toggleButton.textContent = '🌙';
-        toggleButton.title = 'Toggle dark/light mode';
-    }
+	if (body.classList.contains('light-mode')) {
+		localStorage.setItem('theme', 'light');
+		toggleButton.textContent = '☀️';
+		toggleButton.title = 'Toggle light/dark mode';
+	} else {
+		localStorage.setItem('theme', 'dark');
+		toggleButton.textContent = '🌙';
+		toggleButton.title = 'Toggle dark/light mode';
+	}
 }
 
 function checkTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
-        document.getElementById('mode-toggle').textContent = '☀️';
-        document.getElementById('mode-toggle').title = 'Toggle light/dark mode';
-    } else {
-        document.getElementById('mode-toggle').textContent = '🌙';
-        document.getElementById('mode-toggle').title = 'Toggle dark/light mode';
-    }
+	const savedTheme = localStorage.getItem('theme');
+	if (savedTheme === 'light') {
+		document.body.classList.add('light-mode');
+		document.getElementById('mode-toggle').textContent = '☀️';
+		document.getElementById('mode-toggle').title = 'Toggle light/dark mode';
+	} else {
+		document.getElementById('mode-toggle').textContent = '🌙';
+		document.getElementById('mode-toggle').title = 'Toggle dark/light mode';
+	}
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    checkTheme();
-    document.getElementById('mode-toggle').addEventListener('click', toggleTheme);
+	checkTheme();
+	document.getElementById('mode-toggle').addEventListener('click', toggleTheme);
 });
 
 
 (function () {
-    const canvas = document.getElementById('bg');
-    const ctx = canvas.getContext('2d');
-    const particles = [];
-    const NUM_PARTICLES = 100;
+	const canvas = document.getElementById('bg');
+	const ctx = canvas.getContext('2d');
+	const particles = [];
+	const NUM_PARTICLES = 100;
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
+	function resizeCanvas() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
 
-    function createParticles() {
-        for (let i = 0; i < NUM_PARTICLES; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5),
-                vy: (Math.random() - 0.5),
-                radius: Math.random() * 2 + 1
-            });
-        }
-    }
+	function createParticles() {
+		for (let i = 0; i < NUM_PARTICLES; i++) {
+			particles.push({
+				x: Math.random() * canvas.width,
+				y: Math.random() * canvas.height,
+				vx: (Math.random() - 0.5),
+				vy: (Math.random() - 0.5),
+				radius: Math.random() * 2 + 1
+			});
+		}
+	}
 
-    function animateParticles() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#0ff";
+	function animateParticles() {
+		ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "#0ff";
 
-        for (const p of particles) {
-            p.x += p.vx;
-            p.y += p.vy;
+		for (const p of particles) {
+			p.x += p.vx;
+			p.y += p.vy;
 
-            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+			if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+			if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fill();
-        }
+			ctx.beginPath();
+			ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+			ctx.fill();
+		}
 
-        requestAnimationFrame(animateParticles);
-    }
+		requestAnimationFrame(animateParticles);
+	}
 
-    resizeCanvas();
-    createParticles();
-    animateParticles();
+	resizeCanvas();
+	createParticles();
+	animateParticles();
 
-    window.addEventListener('resize', resizeCanvas);
+	window.addEventListener('resize', resizeCanvas);
 })();
 
+const README_CACHE_KEY = 'readmeCache';
 let readmeCache = {};
 try {
-    const raw = localStorage.getItem(README_CACHE_KEY);
-    if (raw) readmeCache = JSON.parse(raw) || {};
+	const raw = localStorage.getItem(README_CACHE_KEY);
+	if (raw) readmeCache = JSON.parse(raw) || {};
 } catch (e) {
-    console.warn('Failed to parse readme cache from localStorage', e);
-    readmeCache = {};
+	console.warn('Failed to parse readme cache from localStorage', e);
+	readmeCache = {};
 }
 
 function persistReadmeCache() {
-    try {
-        localStorage.setItem(README_CACHE_KEY, JSON.stringify(readmeCache));
-    } catch (e) {
-        // ignore quota errors; keep in-memory cache working
-        console.warn('Failed to persist readme cache', e);
-    }
+	try {
+		localStorage.setItem(README_CACHE_KEY, JSON.stringify(readmeCache));
+	} catch (e) {
+		// ignore quota errors; keep in-memory cache working
+		console.warn('Failed to persist readme cache', e);
+	}
 }
 
 function getCachedReadme(repoName, updatedAt) {
-    const entry = readmeCache[repoName];
-    if (!entry) return undefined;
-    if (entry.updatedAt === updatedAt) {
-        return entry.html; // may be string or null
-    }
-    return undefined; // stale
+	const entry = readmeCache[repoName];
+	if (!entry) return undefined;
+	if (entry.updatedAt === updatedAt) {
+		return entry.html; // may be string or null
+	}
+	return undefined; // stale
 }
 
 function setCachedReadme(repoName, html, updatedAt) {
-    readmeCache[repoName] = { html: html, updatedAt: updatedAt };
-    persistReadmeCache();
+	readmeCache[repoName] = { html: html, updatedAt: updatedAt };
+	persistReadmeCache();
 }
 
 
 async function fetchReadmeHTML(owner, repo) {
-    try {
-        // GET readme (base64)
-        const readmeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`);
-        if (!readmeRes.ok) {
-            if (readmeRes.status === 404) return null; // no README
-            throw new Error(`Failed to fetch README: ${readmeRes.status}`);
-        }
+	try {
+		// GET readme (base64)
+		const readmeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`);
+		if (!readmeRes.ok) {
+			if (readmeRes.status === 404) return null; // no README
+			throw new Error(`Failed to fetch README: ${readmeRes.status}`);
+		}
 
-        const readmeData = await readmeRes.json();
-        if (!readmeData.content) return null;
+		const readmeData = await readmeRes.json();
+		if (!readmeData.content) return null;
 
-        // decode base64
-        const decoded = atob(readmeData.content.replace(/\n/g, ''));
+		// decode base64
+		const decoded = atob(readmeData.content.replace(/\n/g, ''));
 
-        // render using GitHub API markdown endpoint
-        const mdRes = await fetch('https://api.github.com/markdown', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: decoded, mode: 'gfm', context: `${owner}/${repo}` }),
-        });
-        if (!mdRes.ok) throw new Error(`Failed to render markdown: ${mdRes.status}`);
+		// render using GitHub API markdown endpoint
+		const mdRes = await fetch('https://api.github.com/markdown', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ text: decoded, mode: 'gfm', context: `${owner}/${repo}` }),
+		});
+		if (!mdRes.ok) throw new Error(`Failed to render markdown: ${mdRes.status}`);
 
-        const html = await mdRes.text();
-        return html;
-    } catch (e) {
-        console.error(e);
-        return `<p style="color: red;">Error loading README: ${e.message}</p>`;
-    }
+		const html = await mdRes.text();
+		return html;
+	} catch (e) {
+		console.error(e);
+		return `<p style="color: red;">Error loading README: ${e.message}</p>`;
+	}
 }
 
 
 async function fetchRepos(username = 'tenkdotolami') {
-    const container = document.getElementById('repo-list');
-    container.textContent = 'Loading repositories...';
+	const container = document.getElementById('repo-list');
+	container.textContent = 'Loading repositories...';
 
-    try {
-        const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+	try {
+		const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated`);
+		if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-        const repos = await response.json();
-        if (!repos.length) {
-            container.innerHTML = '<p>No public repositories found.</p>';
-            return;
-        }
+		const repos = await response.json();
+		if (!repos.length) {
+			container.innerHTML = '<p>No public repositories found.</p>';
+			return;
+		}
 
-        container.innerHTML = '';
-        for (const repo of repos) {
-            const repoEl = document.createElement('div');
-            repoEl.className = 'repo';
+		container.innerHTML = '';
+		for (const repo of repos) {
+			const repoEl = document.createElement('div');
+			repoEl.className = 'repo';
 
-            const repoNameLink = document.createElement('a');
-            repoNameLink.href = repo.html_url;
-            repoNameLink.target = '_blank';
-            repoNameLink.rel = 'noopener noreferrer';
-            repoNameLink.textContent = repo.name;
-            repoNameLink.style.fontFamily = "'Orbitron', sans-serif";
-            repoNameLink.style.color = '#0ff';
-            repoNameLink.style.fontSize = '1.2em';
-            repoNameLink.style.fontWeight = 'bold';
-            repoNameLink.style.textDecoration = 'none';
-            repoNameLink.style.cursor = 'pointer';
-            repoNameLink.addEventListener('click', e => e.stopPropagation());
-            repoEl.dataset.repoName = repo.name;
-            repoEl.dataset.updatedAt = repo.updated_at;
+			const repoNameLink = document.createElement('a');
+			repoNameLink.href = repo.html_url;
+			repoNameLink.target = '_blank';
+			repoNameLink.rel = 'noopener noreferrer';
+			repoNameLink.textContent = repo.name;
+			repoNameLink.style.fontFamily = "'Orbitron', sans-serif";
+			repoNameLink.style.color = '#0ff';
+			repoNameLink.style.fontSize = '1.2em';
+			repoNameLink.style.fontWeight = 'bold';
+			repoNameLink.style.textDecoration = 'none';
+			repoNameLink.style.cursor = 'pointer';
+			repoNameLink.addEventListener('click', e => e.stopPropagation());
+			repoEl.dataset.repoName = repo.name;
+			repoEl.dataset.updatedAt = repo.updated_at;
 
-            const desc = document.createElement('p');
-            desc.textContent = repo.description || 'No description provided.';
-            desc.style.color = '#ccc';
-            desc.style.fontSize = '1rem';
+			const desc = document.createElement('p');
+			desc.textContent = repo.description || 'No description provided.';
+			desc.style.color = '#ccc';
+			desc.style.fontSize = '1rem';
 
-            const stars = document.createElement('p');
-            stars.className = 'stars';
-            stars.textContent = `⭐ Stars: ${repo.stargazers_count}`;
+			const stars = document.createElement('p');
+			stars.className = 'stars';
+			stars.textContent = `⭐ Stars: ${repo.stargazers_count}`;
 
-            repoEl.appendChild(repoNameLink);
-            repoEl.appendChild(desc);
-            repoEl.appendChild(stars);
+			repoEl.appendChild(repoNameLink);
+			repoEl.appendChild(desc);
+			repoEl.appendChild(stars);
 
-            const readmeContainer = document.createElement('div');
-            readmeContainer.className = 'readme-container';
-            readmeContainer.style.marginTop = '10px';
-            readmeContainer.style.paddingTop = '10px';
-            readmeContainer.style.borderTop = '1px solid #0ff';
-            readmeContainer.style.display = 'none';
-            readmeContainer.style.color = '#ccc';
-            readmeContainer.style.fontSize = '0.9rem';
-            readmeContainer.style.maxHeight = '400px';
-            readmeContainer.style.overflowY = 'auto';
-            readmeContainer.style.backgroundColor = 'rgba(0,255,255,0.05)';
-            readmeContainer.style.borderRadius = '5px';
-            readmeContainer.style.userSelect = 'text';
+			const readmeContainer = document.createElement('div');
+			readmeContainer.className = 'readme-container';
+			readmeContainer.style.marginTop = '10px';
+			readmeContainer.style.paddingTop = '10px';
+			readmeContainer.style.borderTop = '1px solid #0ff';
+			readmeContainer.style.display = 'none';
+			readmeContainer.style.color = '#ccc';
+			readmeContainer.style.fontSize = '0.9rem';
+			readmeContainer.style.maxHeight = '400px';
+			readmeContainer.style.overflowY = 'auto';
+			readmeContainer.style.backgroundColor = 'rgba(0,255,255,0.05)';
+			readmeContainer.style.borderRadius = '5px';
+			readmeContainer.style.userSelect = 'text';
 
-            repoEl.appendChild(readmeContainer);
+			repoEl.appendChild(readmeContainer);
 
-            repoEl.addEventListener('click', async () => {
-                const repoName = repoEl.dataset.repoName;
-                const updatedAt = repoEl.dataset.updatedAt;
+			repoEl.addEventListener('click', async () => {
+				const repoName = repoEl.dataset.repoName;
+				const updatedAt = repoEl.dataset.updatedAt;
 
-                if (readmeContainer.style.display === 'block') {
-                    readmeContainer.style.display = 'none';
-                    return;
-                }
+				if (readmeContainer.style.display === 'block') {
+					readmeContainer.style.display = 'none';
+					return;
+				}
 
-                const cached = getCachedReadme(repoName, updatedAt);
-                if (cached !== undefined) {
-                    if (cached === null) {
-                        readmeContainer.innerHTML = '<p>No README.md found for this repository.</p>';
-                    } else {
-                        readmeContainer.innerHTML = cached;
-                    }
-                    readmeContainer.style.display = 'block';
-                    return;
-                }
+				const cached = getCachedReadme(repoName, updatedAt);
+				if (cached !== undefined) {
+					if (cached === null) {
+						readmeContainer.innerHTML = '<p>No README.md found for this repository.</p>';
+					} else {
+						readmeContainer.innerHTML = cached;
+					}
+					readmeContainer.style.display = 'block';
+					return;
+				}
 
-                readmeContainer.style.display = 'block';
-                readmeContainer.innerHTML = '<em>Loading README...</em>';
+				readmeContainer.style.display = 'block';
+				readmeContainer.innerHTML = '<em>Loading README...</em>';
 
-                const html = await fetchReadmeHTML(username, repoName);
-                if (html === null) {
-                    readmeContainer.innerHTML = '<p>No README.md found for this repository.</p>';
-                } else {
-                    readmeContainer.innerHTML = html;
-                }
+				const html = await fetchReadmeHTML(username, repoName);
+				if (html === null) {
+					readmeContainer.innerHTML = '<p>No README.md found for this repository.</p>';
+				} else {
+					readmeContainer.innerHTML = html;
+				}
 
-                // cache what we got (null allowed)
-                setCachedReadme(repoName, html, updatedAt);
-            });
+				// cache what we got (null allowed)
+				setCachedReadme(repoName, html, updatedAt);
+			});
 
-            container.appendChild(repoEl);
-        }
-    } catch (err) {
-        container.innerHTML = `<p>Error loading repos: ${err.message}</p>`;
-    }
+			container.appendChild(repoEl);
+		}
+	} catch (err) {
+		container.innerHTML = `<p>Error loading repos: ${err.message}</p>`;
+	}
 }
 
 
 function revealOnScroll(elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    const triggerPoint = window.innerHeight / 1.5;
+	const element = document.getElementById(elementId);
+	if (!element) return;
+	const triggerPoint = window.innerHeight / 1.5;
 
-    function checkScroll() {
-        const elementTop = element.getBoundingClientRect().top;
-        if (elementTop < triggerPoint) {
-            element.classList.add('visible');
-            window.removeEventListener('scroll', checkScroll);
-        }
-    }
+	function checkScroll() {
+		const elementTop = element.getBoundingClientRect().top;
+		if (elementTop < triggerPoint) {
+			element.classList.add('visible');
+			window.removeEventListener('scroll', checkScroll);
+		}
+	}
 
-    window.addEventListener('scroll', checkScroll);
-    checkScroll();
+	window.addEventListener('scroll', checkScroll);
+	checkScroll();
 }
 
 function updateActiveSection() {
-    const sections = [
-        document.querySelector('main.content'),
-        document.getElementById('skills'),
-        document.getElementById('repos')
-    ];
+	const sections = [
+		document.querySelector('main.content'),
+		...document.querySelectorAll('section')
+	];
 
-    const viewportHeight = window.innerHeight;
-    const visibilityData = [];
+	const viewportHeight = window.innerHeight;
+	const visibilityData = [];
 
-    sections.forEach(section => {
-        const rect = section.getBoundingClientRect();
+	sections.forEach(section => {
+		const rect = section.getBoundingClientRect();
 
-        if (rect.bottom <= 0 || rect.top >= viewportHeight) {
-            visibilityData.push({ section, ratio: 0 });
-            return;
-        }
+		if (rect.bottom <= 0 || rect.top >= viewportHeight) {
+			visibilityData.push({ section, ratio: 0 });
+			return;
+		}
 
-        const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
-        const visibleRatio = visibleHeight / viewportHeight;
+		const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+		const visibleRatio = visibleHeight / viewportHeight;
 
-        visibilityData.push({ section, ratio: visibleRatio });
-    });
+		visibilityData.push({ section, ratio: visibleRatio });
+	});
 
-    // Sort sections by visibility (highest first)
-    visibilityData.sort((a, b) => b.ratio - a.ratio);
+	// Sort sections by visibility (highest first)
+	visibilityData.sort((a, b) => b.ratio - a.ratio);
 
-    const top = visibilityData[0];
-    const second = visibilityData[1];
+	const top = visibilityData[0];
+	const second = visibilityData[1];
 
-    const fadeBase = 0.2;
-    const fadeRunnerUp = 0.6;
-    const fadeActive = 1.0;
-    const blendThreshold = 0.15; // difference ratio before we "blend"
+	const fadeBase = 0.2;
+	const fadeRunnerUp = 0.6;
+	const fadeActive = 1.0;
+	const blendThreshold = 0.15; // difference ratio before we "blend"
 
-    // Reset all sections to base state
-    sections.forEach(section => {
-        section.style.opacity = fadeBase;
-        section.classList.remove('active');
-        section.style.pointerEvents = 'none';
-    });
+	// Reset all sections to base state
+	sections.forEach(section => {
+		section.style.opacity = fadeBase;
+		section.classList.remove('active');
+		section.style.pointerEvents = 'none';
+	});
 
-    if (top.ratio - second.ratio < blendThreshold) {
-        // Gentle transition: top and second visible
-        top.section.style.opacity = fadeActive;
-        top.section.classList.add('active');
-        top.section.style.pointerEvents = 'auto';
+	if (top.ratio - second.ratio < blendThreshold) {
+		// Gentle transition: top and second visible
+		top.section.style.opacity = fadeActive;
+		top.section.classList.add('active');
+		top.section.style.pointerEvents = 'auto';
 
-        second.section.style.opacity = fadeRunnerUp;
-        second.section.classList.add('active');
-        second.section.style.pointerEvents = 'auto';
-    } else {
-        // Clear winner
-        top.section.style.opacity = fadeActive;
-        top.section.classList.add('active');
-        top.section.style.pointerEvents = 'auto';
-    }
+		second.section.style.opacity = fadeRunnerUp;
+		second.section.classList.add('active');
+		second.section.style.pointerEvents = 'auto';
+	} else {
+		// Clear winner
+		top.section.style.opacity = fadeActive;
+		top.section.classList.add('active');
+		top.section.style.pointerEvents = 'auto';
+	}
+
+	updateSectionNav(top.section.id);
+}
+
+// New function to generate and update the section navigation bar
+function populateSectionNav() {
+	const navUl = document.querySelector('#section-nav ul');
+	navUl.innerHTML = '';
+
+	// Find all sections with an h2 and generate links
+	document.querySelectorAll('section').forEach(section => {
+		const sectionId = section.id;
+		const sectionTitle = section.querySelector('h2');
+		if (sectionId && sectionTitle) {
+			const li = document.createElement('li');
+			const link = document.createElement('a');
+			link.href = `#${sectionId}`;
+			link.className = 'section-link';
+			link.textContent = sectionTitle.textContent;
+			li.appendChild(link);
+			navUl.appendChild(li);
+		}
+	});
+}
+
+
+function updateSectionNav(activeId) {
+	const sectionLinks = document.querySelectorAll('#section-nav .section-link');
+	sectionLinks.forEach(link => {
+		if (link.getAttribute('href') === `#${activeId}`) {
+			link.classList.add('active');
+		} else {
+			link.classList.remove('active');
+		}
+	});
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchRepos();
-    revealOnScroll('skills');
-    revealOnScroll('repos');
-    updateActiveSection();
+	fetchRepos();
+	revealOnScroll('skills');
+	revealOnScroll('repos');
+	populateSectionNav();
 
-    window.addEventListener('scroll', updateActiveSection);
-    window.addEventListener('resize', updateActiveSection);
+	// Initial updates
+	updateActiveSection();
+	updateSectionNav(document.querySelector('.content').id);
+
+	window.addEventListener('scroll', updateActiveSection);
+	window.addEventListener('resize', updateActiveSection);
 });
 
 window.addEventListener('scroll', updateActiveSection);
